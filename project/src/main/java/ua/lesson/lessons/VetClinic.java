@@ -11,7 +11,7 @@ public class VetClinic{
          * @throws IllegalArgumentException  if name is null or == "Null"
          */
         public void addNewClient(String name)throws UserException,IllegalArgumentException{
-            if(name=="Null" && name == null){
+            if(name=="Null" || name == null){
             	throw new IllegalArgumentException("Name of client can`t be Null");
 			}
         	boolean flag=false;
