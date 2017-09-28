@@ -1,16 +1,15 @@
 package ua.lesson.lessons;
 
-import javax.jws.soap.SOAPBinding;
 import java.util.*;
 public class VetClinic{
-	LinkedList<Client> clients=new LinkedList<Client>();
+	 private ArrayList<Client> clients=new ArrayList<Client>();
 	/**
          * Method create new client in list of clients
          * @param name name of client
          * @throws UserException  if client with this name already exist
          * @throws IllegalArgumentException  if name is null or == "Null"
          */
-        public void addNewClient(String name)throws UserException,IllegalArgumentException{
+	public void addNewClient(String name)throws UserException,IllegalArgumentException{
             if(name=="Null" || name == null){
             	throw new IllegalArgumentException("Name of client can`t be Null");
 			}
@@ -29,6 +28,7 @@ public class VetClinic{
 	/**
 	* Method removes client from list of clients 
 	* @return true if remove success, otherwise return false;
+	* @param client client to remove
 	*/
 	public boolean removeClient(Client client){
 		boolean result=false;
@@ -43,13 +43,34 @@ public class VetClinic{
 	}
 
 	/**
+	 * Method removes client from list of clients
+	 * @return true if remove success, otherwise return false;
+	 * @param name name of client
+	 */
+	public boolean removeClient(String name){
+		boolean result=false;
+		for(Client c: clients){
+			if(c.getName().equals(name)){
+				clients.remove(c);
+				result=true;
+				break;
+			}
+		}
+		return result;
+	}
+
+//	public boolean removeClientByName(String name){
+//		Client c =searchClientByName(name);
+//	}
+
+	/**
 	* Method search client by his name
 	* @return Searched client or client with name "Null" if client doesn`t exist
 	*/
 	public Client searchClientByName(String clientName){
 		Client result=new Client("Null");
 		for(Client client:clients){
-			if(client.getName() == clientName){
+			if(client.getName().equals(clientName)){
 				result=client;
 				break;
 			}
@@ -57,20 +78,42 @@ public class VetClinic{
 		return result;	
 	}
         /**
-	* Method search client by his pet name
-	* @return Searched client or client with name "Null" if client doesn`t exist
+	* Method search client by his pet name, if 2 or more client has pet with this name
+	* method return first found client, if you need to get all clients use "seachClientsByPetName'
+	* @return First finded client or client with name "Null" if client doesn`t found
 	*/
-        public Client seachClientByPetName(String petName){
+	public Client searchClientByPetName(String petName){
             Client result=new Client("Null");
             for(Client c:clients){
                 Pet temp=c.searchByPetName(petName);
-                if(temp.getName()!="Null"){
+                if(!temp.getName().equals("Null")){
                     result=c;
                     break;
                 }       
             }
             return result;
-        }
+	}
+
+	/**
+	 * Method find all clients who have pet with equal name
+	 * @param petName - name of pet
+	 * @return ArrayList with finded clients
+	 */
+	public ArrayList<Client> searchAllClientsByPetName(String petName){
+		ArrayList<Client> result=new ArrayList<Client>();
+		//Client result=new Client("Null");
+		for(Client c:clients){
+			Pet temp=c.searchByPetName(petName);
+			if(!temp.getName().equals("Null")){
+				result.add(c);
+			}
+		}
+		return result;
+	}
+
+	public int clientCount(){
+		return clients.size();
+	}
         
 	public static void main(String[] arg) throws Exception{
 
@@ -80,13 +123,13 @@ public class VetClinic{
 class Client{
 	//name - client name
 	private String name;
-	LinkedList<Pet> petsList;
+	private ArrayList<Pet> petsList;
 	private int summaryCost=0;
 	public Client(String name){
 		this.name=name;
-		petsList=new LinkedList<Pet>();
+		petsList=new ArrayList<Pet>();
 	}
-	public Client(String name, LinkedList<Pet> petList){
+	public Client(String name, ArrayList<Pet> petList){
 		this.name=name;
 		this.petsList=petList;
 		for(Pet p: petsList){
@@ -164,7 +207,7 @@ class Client{
 	public Pet searchByPetName(String petName){
 		Pet result=new Pet("Null","Null");
 		for(Pet p: petsList)
-			if(p.getName()== petName){
+			if(p.getName().equals(petName)){
 				result=p;
 				break;
 			}
@@ -173,7 +216,7 @@ class Client{
 	public Pet searchByPetNameAndType(String petName,String petType){
         Pet result=new Pet("Null","Null");
         for(Pet p: petsList)
-            if(p.getName()== petName && p.getType()==petType){
+            if(p.getName().equals(petName) && p.getType().equals(petType)){
                 result=p;
                 break;
             }
@@ -185,14 +228,32 @@ class Client{
 	public String getName(){
 		return this.name;
 	}
-        public boolean equals(Client arg){
-            boolean result=false;
-            if(this.name==arg.name &&
-               this.petsList.equals(arg.petsList)&&
-               this.summaryCost==arg.summaryCost)
-                    result=true;
-            return result;
-        }
+
+	public ArrayList<Pet> getPetsList() {
+		return petsList;
+	}
+
+	public boolean equals(Client arg){
+		boolean result=false;
+        if(this.name.equals(arg.name) &&
+			this.comparePets(arg)&&
+			this.summaryCost==arg.summaryCost)
+        	result=true;
+        return result;
+    }
+
+    private boolean comparePets(Client arg){
+		if(this.petsList.size()!= arg.getPetsList().size()) return false;
+
+		boolean result=true;
+		for(int i=0;i<petsList.size();i++){
+			if(!petsList.get(i).equals(arg.getPetsList().get(i))){
+				result=false;
+				break;
+			}
+		}
+		return result;
+	}
 	
 }
 
@@ -202,24 +263,25 @@ class Pet{
         //type of pet(cat,dog,e.g)
         private String type;
 	// it`s list of procedures with this pet
-	private LinkedList<Procedure> proceduresList;
+	private ArrayList<Procedure> proceduresList;
 	//summaryPrice it`s cost of all procedures with this pet
 	private int summaryPrice=0;
 	
 	public Pet(String name,String type){
 		this.name=name;
                 this.type=type;
-		proceduresList=new LinkedList<Procedure>();
+		proceduresList=new ArrayList<Procedure>();
 	}
-	public Pet(String name,String type, LinkedList<Procedure> procList){
+	public Pet(String name,String type, ArrayList<Procedure> procList){
 		this.name=name;
-                this.type=type;
+		this.type=type;
 		this.proceduresList=procList;
 		for(Procedure p: proceduresList){
 			summaryPrice+=p.getProcedurePrice();
 		}
 		
 	}
+
 	public void addProcedure(String name, int price){
 		proceduresList.add(new Procedure(name,price));
 		summaryPrice+=price;
@@ -230,12 +292,12 @@ class Pet{
 	}
 	/**
 	* Method removes procedure from list of procedures 
-	* @returns true if remove success, otherwise return false;
+	* @return true if remove success, otherwise return false;
 	*/
 	public boolean removeProcedureByName(String name){
 		boolean result=false;
 		for(Procedure p: proceduresList){
-			if(p.getProcedureName() == name){
+			if(p.getProcedureName().equals(name)){
 				summaryPrice-=p.getProcedurePrice();
 				proceduresList.remove(p);
 				result=true;
@@ -256,7 +318,7 @@ class Pet{
 	public String getType(){
             return type;
         }
-	public LinkedList<Procedure> getProcedures(){
+	public ArrayList<Procedure> getProcedures(){
             return proceduresList;
         }
 	public String toShortString(){
@@ -272,14 +334,28 @@ class Pet{
          */
         public boolean equals(Pet arg){
             boolean result=false;
-            if(this.getName()==arg.getName() &&
-               this.getType()==arg.getType() &&
+            if(this.getName().equals(arg.getName()) &&
+               this.getType().equals(arg.getType()) &&
                this.getPetPrice()==arg.getPetPrice() &&
-               this.getProcedures()==arg.getProcedures())
+               this.compareProcedures(arg))
                     result=true;
             return result;
                 
         }
+
+        private boolean compareProcedures(Pet arg){
+        	if(this.proceduresList.size()!= arg.getProcedures().size()) return false;
+
+			boolean result=true;
+			for(int i=0;i<proceduresList.size();i++){
+				if(!proceduresList.get(i).equals(arg.getProcedures().get(i))){
+					result=false;
+					break;
+				}
+			}
+			return result;
+
+		}
 	
 }
 
@@ -307,5 +383,8 @@ class Procedure{
         }
 	public String toString(){
 		return name+": "+price+" "+date;
+	}
+	public boolean equals(Procedure arg){
+		return this.name.equals(arg.getProcedureName()) && this.price==arg.getProcedurePrice();
 	}
 }
