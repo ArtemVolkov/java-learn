@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+  <display-name>ClinicPet</display-name>
+
+  <servlet>
+    <servlet-name>ClinicServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.ClinicServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ClinicServlet</servlet-name>
+    <url-pattern>/test</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ClinicMainServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.ClinicMainServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ClinicMainServlet</servlet-name>
+    <url-pattern>/main</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>ClinicViewServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.ClinicViewServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>ClinicViewServlet</servlet-name>
+    <url-pattern>/view</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>ClinicUserViewServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.ClinicUserViewServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ClinicUserViewServlet</servlet-name>
+    <url-pattern>/user/view</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>ClinicPetViewServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.ClinicPetViewServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ClinicPetViewServlet</servlet-name>
+    <url-pattern>/pet/view</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ClinicCreateUserServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.ClinicCreateUserServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ClinicCreateUserServlet</servlet-name>
+    <url-pattern>/create</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>UserDeleteServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.UserDeleteServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>UserDeleteServlet</servlet-name>
+    <url-pattern>/delete</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>UserEditServlet</servlet-name>
+    <servlet-class>ua.lesson.servlets.UserEditServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>UserEditServlet</servlet-name>
+    <url-pattern>/edit</url-pattern>
+  </servlet-mapping>
+
+
+
+</web-app>

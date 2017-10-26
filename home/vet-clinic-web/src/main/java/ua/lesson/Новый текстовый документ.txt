@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Clinic Pets</title>
+	</head>
+	<body>
+		<form action= method='post'>
+			Name: <input type='text' name='name'>
+			<input type='submit' value='Submit'>
+		<form>
+	</body>
+</html>

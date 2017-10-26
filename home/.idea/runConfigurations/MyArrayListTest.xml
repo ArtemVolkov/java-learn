@@ -1,0 +1,32 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MyArrayListTest" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" track_test_folders="true" runner="jacoco">
+      <pattern>
+        <option name="PATTERN" value="ua.lesson.lessons.Lesson_10.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+      <pattern>
+        <option name="PATTERN" value="ua.lesson.lessons.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <module name="se" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="PACKAGE_NAME" value="ua.lesson.lessons.Lesson_10" />
+    <option name="MAIN_CLASS_NAME" value="ua.lesson.lessons.Lesson_10.MyArrayListTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="PARAMETERS" value="" />
+    <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
+    <option name="ENV_VARIABLES" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <option name="TEST_SEARCH_SCOPE">
+      <value defaultName="singleModule" />
+    </option>
+    <envs />
+    <patterns />
+    <method />
+  </configuration>
+</component>

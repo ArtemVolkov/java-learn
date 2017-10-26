@@ -1,0 +1,28 @@
+P.cite { /* Параграф с классом cite */
+    text-align: justify; /* Выравнивание текста по ширине */
+    color: navy; /* Синий цвет текста */
+    font-style: italic; /* Курсивное начертание */
+}
+
+header {
+    background: #00b0d8;
+}
+header-bg {
+    padding-left: 20px;
+    padding-right: 20px;
+     height: 205px;
+}
+
+td.menuItem{
+    align:center;
+    background-color:cyan ;
+    color:green;
+    border: 2px;
+    border-color: black;
+}
+
+p{
+    padding-left: 20px;
+    padding-right: 20px;
+
+}
