@@ -13,7 +13,7 @@ public class VetClinicTest {
         vet.addNewClient("John Doe");
         vet.addNewClient("William Doe");
 
-        Client c=new Client(Client.generateId(),"William Doe","123");
+        Client c=vet.searchClientByName("William Doe");
         vet.removeClient(c);
         assertEquals(1, vet.clientCount());
     }
@@ -81,33 +81,30 @@ public class VetClinicTest {
         vet.addNewClient(new String());
     }
 
-    @Test(expected =UserException.class)
-    public void addNewClient3() throws Exception {
-        VetClinic vet=new VetClinic();
-        vet.addNewClient("Jason");
-        vet.addNewClient("Jason");
-    }
-
     @Test
     public void equalsTest() throws UserException {
-        Procedure p1=new Procedure(Procedure.generateId(),"Temp", 10);
-        Procedure p2=new Procedure(Procedure.generateId(), "Temp", 10);
+        int id=Procedure.generateId();
+        Procedure p1=new Procedure(id,"Temp", 10);
+        Procedure p2=new Procedure(id, "Temp", 10);
         assertEquals(true, p1.equals(p2));
 
-        Pet pet1=new Pet(Pet.generateId(),"J","Cat");
-        Pet pet2=new Pet(Pet.generateId(),"J","Cat");
+        id=Pet.generateId();
+        Pet pet1=new Pet(id,"J","Cat");
+        Pet pet2=new Pet(id,"J","Cat");
         assertEquals(true, pet1.equals(pet2));
 
-        pet1.addProcedure("T",10);
-        pet2.addProcedure("T",10);
+
+        pet1.addProcedure(p1);
+        pet2.addProcedure(p2);
         assertEquals(true, pet1.equals(pet2));
 
-        Client a= new Client(Pet.generateId(), "James", "123");
-        Client b= new Client(Pet.generateId(), "James", "123");
+        id=Client.generateId();
+        Client a= new Client(id, "James", "123");
+        Client b= new Client(id, "James", "123");
         assertEquals(true,a.equals(b));
 
-        a.addNewPet("Jen", "Cat");
-        b.addNewPet("Jen", "Cat");
+        a.addNewPet(pet1);
+        b.addNewPet(pet2);
         assertEquals(true,a.equals(b));
     }
 

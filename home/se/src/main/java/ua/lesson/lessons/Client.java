@@ -50,7 +50,8 @@ public class Client{
 	 * @throws IllegalArgumentException if name or type == null
 	 */
 	public void addNewPet(String name,String type) throws UserException, IllegalArgumentException{
-		if(name=="Null" || name==null||type=="Null"|| type==null)
+		if(name.toLowerCase().equals("null") || name== null ||
+                type.toLowerCase().equals("null") || type== null)
 			throw new IllegalArgumentException("Name or Type can`t be null or == \'null\'");
 
 		Pet possiblePet=this.searchByPetNameAndType(name,type);
@@ -71,8 +72,8 @@ public class Client{
 	 * @throws IllegalArgumentException if name or type == null
 	 */
 	public void addNewPet(Pet p)throws UserException,IllegalArgumentException{
-		if(p.getName()=="Null" || p.getName()==null ||
-				p.getType()=="Null" || p.getType()==null)
+		if(p.getName().toLowerCase().equals("null") || p.getName()==null ||
+				p.getType().toLowerCase().equals("null") || p.getType()==null)
 			throw new IllegalArgumentException("Name or Type can`t be null or == \'null\'");
 		boolean flag=false;
 		for(Pet pet:petsList){
@@ -143,15 +144,38 @@ public class Client{
 	}
 	public String getPassword() {	return password;	}
 
-	public boolean equals(Client arg){
-		boolean result=false;
-		if(this.name.equals(arg.name) &&
-				this.comparePets(arg)&&
-				this.summaryCost==arg.summaryCost)
-			result=true;
+	@Override
+	public boolean equals(Object arg){
+		if(arg== null) return false;
+		if(this==arg) return true;
+		if(this.getClass()!=arg.getClass()) return false;
+
+		Client cl=(Client)arg;
+		return 	this.getId() == cl.getId() &&
+				this.getName().equals(cl.getName()) &&
+				this.getSummaryCost() == cl.getSummaryCost() &&
+				this.getPassword().equals(cl.getPassword()) &&
+				this.comparePets(cl);
+
+	}
+
+	@Override
+	public int hashCode(){
+		final int PRIME =31;
+		int result=1;
+		result = PRIME * result + this.getId();
+		result = PRIME * result + (this.getName() == null? 0: this.getName().hashCode());
+		result = PRIME * result + (this.getPassword() == null? 0: this.getPassword().hashCode());
+		result = PRIME * result + (this.getPetsList() == null? 0: this.getPetsList().hashCode());
+		result = PRIME * result + ((int) Math.round(this.getSummaryCost()));
 		return result;
 	}
 
+	/**
+	 * This method comparing pets of this client
+	 * @param arg client to compare
+	 * @return true if petsList is equal
+	 */
 	private boolean comparePets(Client arg){
 		if(this.petsList.size()!= arg.getPetsList().size()) return false;
 

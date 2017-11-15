@@ -61,8 +61,28 @@ public class Procedure{
 	public String toString(){
 		return name+": "+price+" "+date;
 	}
-	public boolean equals(Procedure arg){
-		return this.name.equals(arg.getName()) && this.price==arg.getPrice();
+	@Override
+	public boolean equals(Object arg){
+		if(arg == null) return false;
+		if(this == arg) return true;
+		if(this.getClass() != arg.getClass()) return false;
+
+		Procedure p = (Procedure)arg;
+		return this.getId()== p.getId() &&
+				this.getPetId() == p.getPetId() &&
+				this.getName().equals(p.getName()) &&
+				this.getProcedureDate().equals(p.getProcedureDate());
+	}
+
+	@Override
+	public int hashCode(){
+		final int PRIME = 31;
+		int result = 1;
+		result = PRIME * result + this.getId();
+		result = PRIME * result + this.getPetId();
+		result = PRIME * result + (this.getName() == null? 0: this.getName().hashCode());
+		result = PRIME * result + (this.getProcedureDate() == null? 0: this.getProcedureDate().hashCode());
+		return  result;
 	}
 
 	public static int generateId(){

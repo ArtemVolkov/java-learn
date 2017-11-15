@@ -15,6 +15,7 @@ public class Pet{
 	private int clientId=-1;
 	private int age=-1;
 
+
 	private ArrayList<Procedure> proceduresList;
 
 	public double getSummaryPrice() {
@@ -110,6 +111,9 @@ public class Pet{
 		return type;
 	}
 	public ArrayList<Procedure> getProcedures(){
+		return this.getProceduresList();
+	}
+	public ArrayList<Procedure> getProceduresList() {
 		return proceduresList;
 	}
 	public String toShortString(){
@@ -123,15 +127,32 @@ public class Pet{
 	 * @param arg pet to compare
 	 * @return true if pets are equals or false otherwise
 	 */
-	public boolean equals(Pet arg){
-		boolean result=false;
-		if(this.getName().equals(arg.getName()) &&
-				this.getType().equals(arg.getType()) &&
-				this.getPetPrice()==arg.getPetPrice() &&
-				this.compareProcedures(arg))
-			result=true;
-		return result;
+	@Override
+	public boolean equals(Object arg){
+		if(arg == null) return false;
+		if(this == arg) return true;
+		if(this.getClass() != arg.getClass()) return false;
 
+		Pet p= (Pet)arg;
+		return this.getId() == p.getId() &&
+				this.getType().equals(p.getType()) &&
+				this.getName().equals(p.getName()) &&
+				this.getAge() == p.getAge() &&
+				this.getClientId() == p.getClientId() &&
+				this.compareProcedures(p);
+	}
+
+	@Override
+	public int hashCode(){
+		final int PRIME = 31;
+		int result = 1;
+		result = PRIME * result + this.getId();
+		result = PRIME * result + (this.getName() == null? 0: this.getName().hashCode());
+		result = PRIME * result + (this.getType() == null? 0: this.getType().hashCode());
+		result = PRIME * result + this.getAge();
+		result = PRIME * result + this.getClientId();
+		result = PRIME * result + (this.getProceduresList() == null? 0: this.getProceduresList().hashCode());
+		return result;
 	}
 
 	private boolean compareProcedures(Pet arg){
