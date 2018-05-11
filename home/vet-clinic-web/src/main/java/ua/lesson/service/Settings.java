@@ -1,5 +1,6 @@
 package ua.lesson.service;
 
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -14,8 +15,7 @@ public class Settings {
 
     private Settings(){
         try{
-            properties.load(new FileInputStream(
-                    this.getClass().getClassLoader().getResource("db.properties").getFile()));
+            properties.load(new FileInputStream(Settings.class.getClassLoader().getResource("db.properties").getFile()));
         }catch (IOException e){
             e.printStackTrace();
         }

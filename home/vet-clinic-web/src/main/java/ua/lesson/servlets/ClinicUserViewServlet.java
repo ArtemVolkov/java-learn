@@ -21,7 +21,7 @@ public class ClinicUserViewServlet extends HttpServlet{
             Client client=vetClinic.getClients().get(index);
             req.setAttribute("user", client);
             //give pets list to view
-            req.setAttribute("pets", client.getPetsList());
+            req.setAttribute("pets", client.getPets());
         }catch (IndexOutOfBoundsException e){ //go to error page
             req.setAttribute("error", "User with this id does not exist!");
             RequestDispatcher errorDisp=req.getRequestDispatcher("/views/clinic/ErrorPage.jsp");

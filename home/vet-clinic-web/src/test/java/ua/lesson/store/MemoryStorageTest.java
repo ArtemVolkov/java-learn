@@ -4,17 +4,14 @@ import org.junit.Test;
 import ua.lesson.lessons.*;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static org.junit.Assert.*;
 
 public class MemoryStorageTest {
-
+    private Storage vet=new MemoryStorage();
 
     @Test
-    public void addClient() throws Exception {
-        MemoryStorage vet=new MemoryStorage();
-        synchronized (vet){
+    public void addClientTest() throws Exception {
         assertEquals(0, vet.getClients().size());
         Client client =new Client(Client.generateId(), "John", "123");
         assertEquals(0, vet.getClients().size());
@@ -22,13 +19,11 @@ public class MemoryStorageTest {
         assertEquals(1, vet.getClients().size());
         assertEquals("John", vet.getClient(client.getId()).getName());
         vet.close();
-        }
-
     }
 
     @Test
-    public void editClient() throws Exception {
-        MemoryStorage vet=new MemoryStorage();
+    public void editClientTest() throws Exception {
+        
         Client c=new Client(Client.generateId(),"John","123");
         vet.addClient(c);
         Client client= vet.findByClientName("John");
@@ -36,15 +31,12 @@ public class MemoryStorageTest {
         client.setName("John Cena");
         assertEquals(1,vet.getClients().size());
         vet.editClient(client);
-        for(Client ce: vet.getClients()){
-            System.out.println(ce.getName());
-        }
         assertEquals("John Cena", vet.getClient(id).getName());
         vet.close();
     }
 
     @Test
-    public void deleteClient() throws Exception {
+    public void deleteClientTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client =new Client(Client.generateId(), "Jimmy", "123");
         vet.addClient(client);
@@ -58,19 +50,19 @@ public class MemoryStorageTest {
 
 
     @Test
-    public void getPetsList() throws Exception {
+    public void getPetsListTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
         vet.addClient(client);
-        assertEquals(1,client.getPetsList().size());
-        assertEquals(1,vet.getClient(client.getId()).getPetsList().size());
+        assertEquals(1,client.getPets().size());
+        assertEquals(1,vet.getClient(client.getId()).getPets().size());
         vet.close();
     }
 
 
     @Test
-    public void editPet() throws Exception {
+    public void editPetTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
@@ -78,27 +70,27 @@ public class MemoryStorageTest {
         Pet pet=vet.findByPetName("Betty");
         pet.setName("Bobby");
         vet.editPet(pet);
-        Client client1=vet.findByClientName("John");
-        assertEquals("Bobby", client.getPetsList().get(client.getPetsList().size()-1).getName());
+        client=vet.findByClientName("John");
+        assertEquals("Bobby", client.getPets().get(client.getPets().size()-1).getName());
         vet.close();
 
     }
 
     @Test
-    public void deletePet() throws Exception {
+    public void deletePetTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
         vet.addClient(client);
         Pet pet= vet.findByPetName("Betty");
         vet.deletePet(pet);
-        Client client1=vet.findByClientName("John");
-        assertEquals(0, client.getPetsList().size());
+        client=vet.findByClientName("John");
+        assertEquals(0, client.getPets().size());
         vet.close();
     }
 
     @Test
-    public void getPet() throws Exception {
+    public void getPetTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
@@ -110,11 +102,11 @@ public class MemoryStorageTest {
     }
 
     @Test
-    public void getProceduresList() throws Exception {
+    public void getProceduresListTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
-        Pet pet=client.getPetsList().get(0);
+        Pet pet=client.getPets().get(0);
         vet.addClient(client);
         Pet pet1=vet.findByPetName("Betty");
         pet.addProcedure("testProc", 15);
@@ -124,11 +116,11 @@ public class MemoryStorageTest {
     }
 
     @Test
-    public void editProcedure() throws Exception {
+    public void editProcedureTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
-        Pet pe=client.getPetsList().get(0);
+        Pet pe=client.getPets().get(0);
         pe.addProcedure("testProc1",10);
         vet.addClient(client);
         Pet pet=vet.findByPetName("Betty");
@@ -143,11 +135,11 @@ public class MemoryStorageTest {
     }
 
     @Test
-    public void deleteProcedure() throws Exception {
+    public void deleteProcedureTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
-        Pet pe=client.getPetsList().get(0);
+        Pet pe=client.getPets().get(0);
         pe.addProcedure("test",10);
         vet.addClient(client);
         Procedure proc1= vet.findByProcedureName("test");
@@ -163,7 +155,7 @@ public class MemoryStorageTest {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
-        Pet pet=client.getPetsList().get(0);
+        Pet pet=client.getPets().get(0);
         pet.addProcedure("testProc",10);
         vet.addClient(client);
         Procedure proc=vet.findByProcedureName("testProc");
@@ -174,11 +166,10 @@ public class MemoryStorageTest {
     }
 
     @Test
-    public void getClients() throws Exception {
+    public void getClientsTest() throws Exception {
         MemoryStorage vet=new MemoryStorage();
         Client client = new Client(Client.generateId(),"John","123");
         client.addNewPet("Betty", "Cat");
-        Pet pet=client.getPetsList().get(0);
         vet.addClient(client);
         ArrayList<Client> clients=(ArrayList<Client>)vet.getClients();
         Client c=clients.get(0);
@@ -188,11 +179,13 @@ public class MemoryStorageTest {
     }
 
     @Test
-    public void close(){
+    public void closeTest(){
         MemoryStorage vet=new MemoryStorage() ;
         try{
             vet.addClient(new Client(Client.generateId(),"N","N"));
-        }catch (UserException e){}
+        }catch (UserException e){
+            e.printStackTrace();
+        }
             vet.close();
         assertEquals(0, vet.getClients().size());
     }

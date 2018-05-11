@@ -1,29 +1,45 @@
 package ua.lesson.lessons;
 
-import java.util.ArrayList;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
+import javax.persistence.*;
+import java.util.*;
 
+@Entity
+@Table(name = "pet")
+@Access(AccessType.FIELD)
 public class Pet{
+
+	@Id
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "pid")
+	private int id;
+	@Column(name = "name")
 	private String name;
-	//type of pet(cat,dog,e.g)
+	@Column(name = "type")
 	private String type;
 
 	private static int count=0;
-	private final int id;
 
-	// it`s list of procedures with this pet
-	private int clientId=-1;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "client_id")
+	private Client client;
+
+	@Column(name = "age")
 	private int age=-1;
 
+	// it`s list of procedures with this pet
+	@OneToMany(fetch = FetchType.EAGER, mappedBy ="pet", cascade = CascadeType.ALL, targetEntity = Procedure.class)
+	private List<Procedure> proceduresList=new ArrayList<Procedure>();
 
-	private ArrayList<Procedure> proceduresList;
-
-	public double getSummaryPrice() {
-		return summaryPrice;
-	}
-
+	@Column(name= "summaryprice")
 	//summaryPrice it`s cost of all procedures with this pet
-	private double summaryPrice=0;
+	private Double summaryPrice=0D;
+
+	public Pet(){
+
+	}
 
 	public Pet(int id,String name,String type){
 		this.id=id;
@@ -40,7 +56,7 @@ public class Pet{
 			summaryPrice+=p.getPrice();
 		}
 	}
-	public Pet(int id,String name,String type, ArrayList<Procedure> procList, int clientId,int age){
+	public Pet(int id,String name,String type, ArrayList<Procedure> procList, Client client, int age){
 		this.id=id;
 		this.name=name;
 		this.type=type;
@@ -48,19 +64,20 @@ public class Pet{
 		for(Procedure p: proceduresList){
 			summaryPrice+=p.getPrice();
 		}
-		this.clientId=clientId;
+		this.client=client;
 		this.age=age;
 	}
 
 	public void addProcedure(String name, double price){
 		Procedure proc=new Procedure(Procedure.generateId(),name,price);
-		proc.setPetId(this.getId());
+		proc.setPet(this);
 		proceduresList.add(proc);
 		summaryPrice+=price;
 	}
 	public void addProcedure(Procedure procedure){
 		proceduresList.add(procedure);
 		summaryPrice+=procedure.getPrice();
+		procedure.setPet(this);
 
 	}
 	/**
@@ -80,50 +97,68 @@ public class Pet{
 		return result;
 	}
 
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public int getId() {
 		return id;
 	}
 
-	public double getPetPrice(){
+	public void setSummaryPrice(double summaryPrice) {
+		this.summaryPrice = summaryPrice;
+	}
+	public double getSummaryPrice() {
 		return summaryPrice;
 	}
-	public void SetName(String name){
-		this.name=name;
-	}
-	public String getName(){
-		return name;
+	public double getPetPrice(){
+		return this.getSummaryPrice();
 	}
 
-	public int getClientId() {
-		return clientId;
-	}
-	public void setClientId(int clientId){this.clientId=clientId;}
+
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	public String getName(){
+		return name;
+	}
+
+
+
 	public void setType(String type) {
 		this.type = type;
 	}
-	public int getAge(){return age;}
-	public void setAge(int age){this.age=age;}
+
 	public String getType(){
 		return type;
 	}
-	public ArrayList<Procedure> getProcedures(){
-		return this.getProceduresList();
+
+	public void setAge(int age){this.age=age;}
+
+	public int getAge(){return age;}
+
+	public void setProceduresList(ArrayList<Procedure> proceduresList) {
+		this.proceduresList = proceduresList;
 	}
-	public ArrayList<Procedure> getProceduresList() {
+
+	public List<Procedure> getProceduresList() {
 		return proceduresList;
 	}
+
+	public List<Procedure> getProcedures(){
+		return this.getProceduresList();
+	}
+
 	public String toShortString(){
 		return name+": "+summaryPrice;
 	}
 	public String toString(){
 		return name+": "+proceduresList+": "+ summaryPrice;
 	}
+
 	/**
-	 * Method compare 2 pets
+	 * Method compares 2 pets
 	 * @param arg pet to compare
 	 * @return true if pets are equals or false otherwise
 	 */
@@ -131,15 +166,18 @@ public class Pet{
 	public boolean equals(Object arg){
 		if(arg == null) return false;
 		if(this == arg) return true;
-		if(this.getClass() != arg.getClass()) return false;
+		if (!(arg instanceof Pet)) return false;
+
 
 		Pet p= (Pet)arg;
+
 		return this.getId() == p.getId() &&
 				this.getType().equals(p.getType()) &&
 				this.getName().equals(p.getName()) &&
 				this.getAge() == p.getAge() &&
-				this.getClientId() == p.getClientId() &&
+				this.getClient().getId() == p.getClient().getId() &&
 				this.compareProcedures(p);
+
 	}
 
 	@Override
@@ -150,7 +188,7 @@ public class Pet{
 		result = PRIME * result + (this.getName() == null? 0: this.getName().hashCode());
 		result = PRIME * result + (this.getType() == null? 0: this.getType().hashCode());
 		result = PRIME * result + this.getAge();
-		result = PRIME * result + this.getClientId();
+		result = PRIME * result + this.getClient().getId();
 		result = PRIME * result + (this.getProceduresList() == null? 0: this.getProceduresList().hashCode());
 		return result;
 	}
@@ -168,7 +206,17 @@ public class Pet{
 		return result;
 	}
 
+
+	public Client getClient() {
+		return client;
+	}
+	public void setClient(Client client) {
+		this.client = client;
+	}
 	public static int generateId(){
 		return count++;
+	}
+	public int getClientId(){
+		return this.client.getId();
 	}
 }

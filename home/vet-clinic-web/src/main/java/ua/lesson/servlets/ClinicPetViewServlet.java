@@ -22,7 +22,7 @@ public class ClinicPetViewServlet extends HttpServlet{
             int clientIndex=Integer.valueOf(req.getParameter("clientid"));
 
             Client client=vet.getClient(clientIndex);
-            Pet pet= client.getPetsList().get(petIndex);
+            Pet pet= client.getPets().get(petIndex);
 
             req.setAttribute("pet", pet);
             req.setAttribute("proc", pet.getProcedures());

@@ -6,8 +6,8 @@ import ua.lesson.lessons.Procedure;
 import ua.lesson.lessons.UserException;
 import ua.lesson.service.Settings;
 
-import javax.swing.plaf.nimbus.State;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,16 +53,14 @@ public class JdbcStorage implements Storage {
     //
     public int addClient(Client client) throws UserException {
         try (final PreparedStatement statement = this.connection.prepareStatement(
-                "insert into client (name, password) values (?,?)", Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, client.getName());
-            statement.setString(2, client.getPassword());
+                "insert into client (uid ,name, password) values ((?), (?) , (?))", Statement.RETURN_GENERATED_KEYS)) {
+            statement.setInt(1,client.getId());
+            statement.setString(2, client.getName());
+            statement.setString(3, client.getPassword());
             statement.executeUpdate();
 
-            for(Pet p:client.getPetsList()){
+            for(Pet p:client.getPets()){
                 this.addPet(client.getId(), p);
-                for(Procedure proc: p.getProcedures()){
-                    this.addProcedure(p.getId(), proc);
-                }
             }
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -84,7 +82,7 @@ public class JdbcStorage implements Storage {
             statement.setString(2, client.getPassword());
             statement.setInt(3, client.getId());
             statement.executeUpdate();
-            for(Pet p: client.getPetsList()){
+            for(Pet p: client.getPets()){
 
                 for(Procedure proc: p.getProcedures()){
                     this.editProcedure(proc);
@@ -100,6 +98,7 @@ public class JdbcStorage implements Storage {
     @Override
     //
     public void deleteClient(int id) {//check
+        this.deletePets(id);
         try(PreparedStatement preparedStatement=this.connection.prepareStatement(
                 "delete from client where uid= ?", Statement.RETURN_GENERATED_KEYS)){
             preparedStatement.setInt(1, id);
@@ -108,6 +107,7 @@ public class JdbcStorage implements Storage {
         }catch (SQLException e){
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -157,7 +157,9 @@ public class JdbcStorage implements Storage {
     public int generateClientId() {
         try(Statement statement = connection.createStatement()){
             ResultSet rs=statement.executeQuery("SELECT max(uid)+1 as id FROM client");
-                return rs.getInt("id");
+               while(rs.next()) {
+                   return rs.getInt("id");
+               }
 
         }catch (SQLException e){
             e.printStackTrace();
@@ -177,7 +179,7 @@ public class JdbcStorage implements Storage {
                                 rs.getString("name"),
                                 rs.getString("type"),
                                 (ArrayList<Procedure>) this.getProceduresList(petId),
-                                rs.getInt("client_id"),
+                                getClient(rs.getInt("client_id")),
                                 rs.getInt("age"));
                 petsList.add(pet);
             }
@@ -192,21 +194,18 @@ public class JdbcStorage implements Storage {
     //
     public int addPet(int clientId, Pet pet) throws UserException {
         try(PreparedStatement statement=this.connection.prepareStatement(
-                "insert into pet (client_id, type, name, age) values((?),(?),(?),(?))")){
-            statement.setInt(1,pet.getClientId());
-            statement.setString(2,pet.getType());
-            statement.setString(3,pet.getName());
-            statement.setInt(4,pet.getAge());
+                "insert into pet (uid, client_id, type, name, age) values((?), (?),(?),(?),(?))")){
+            statement.setInt(1,pet.getId());
+            statement.setInt(2,pet.getClient().getId());
+            statement.setString(3,pet.getType());
+            statement.setString(4,pet.getName());
+            statement.setInt(5,pet.getAge());
             statement.executeUpdate();
 
             for(Procedure p: pet.getProcedures()){
                 this.addProcedure(pet.getId(), p);
             }
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
-                }
-            }
+            return pet.getId();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -251,7 +250,7 @@ public class JdbcStorage implements Storage {
 
     /**
      * Method delete all pets of client
-     * @param clientId
+     * @param clientId - id of pets owner id
      */
     public void deletePets(int clientId){
         for(Pet p: this.getPetsList(clientId)) {
@@ -275,7 +274,7 @@ public class JdbcStorage implements Storage {
                                    rs.getString("name"),
                                    rs.getString("type"),
                                    (ArrayList<Procedure>) this.getProceduresList(petId),
-                                   rs.getInt("client_id"),
+                                  getClient( rs.getInt("client_id")),
                                    rs.getInt("age"));
                 }
             }
@@ -298,7 +297,7 @@ public class JdbcStorage implements Storage {
                         rs.getString("name"),
                         rs.getString("type"),
                         (ArrayList<Procedure>) this.getProceduresList(petId),
-                        rs.getInt("client_id"),
+                        getClient(rs.getInt("client_id")),
                         rs.getInt("age"));
             }
 
@@ -312,8 +311,10 @@ public class JdbcStorage implements Storage {
     //
     public int generatePetId() {
         try(Statement statement= connection.createStatement()){
-            ResultSet rs=statement.executeQuery("SELECT max(uid)+1 as id FROM pet");
-            return rs.getInt("id");
+            ResultSet rs=statement.executeQuery("SELECT max(pid)+1 as id FROM pet");
+            while(rs.next()) {
+                return rs.getInt("id");
+            }
 
         }catch (SQLException e){
             e.printStackTrace();
@@ -331,8 +332,8 @@ public class JdbcStorage implements Storage {
                 Procedure proc=new Procedure(rs.getInt("uid"),
                                              rs.getString("name"),
                                              rs.getDouble("coast"),
-                                             rs.getDate("date"),
-                                             rs.getInt("pet_id"));
+                                             new java.util.Date(rs.getDate("date").getTime()),
+                                            getPet(rs.getInt("pet_id")));
                 procList.add(proc);
             }
 
@@ -344,7 +345,19 @@ public class JdbcStorage implements Storage {
 
     @Override
     public int addProcedure(int petId, Procedure procedure) throws UserException {
-        return 0;
+        try(PreparedStatement statement=connection.prepareStatement("insert into procedure (uid, pet_id, name, coast, date) values ((?), (?) , (?) , (?) , (?))")){
+            statement.setInt(1,procedure.getId());
+            statement.setInt(2,petId);
+            statement.setString(3,procedure.getName());
+            statement.setDouble(4,procedure.getPrice());
+            statement.setDate(5, new Date(procedure.getProcedureDate().getTime()));
+            statement.executeUpdate();
+            return procedure.getId();
+
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalStateException("Cant add procedure");
     }
 
     @Override
@@ -354,7 +367,7 @@ public class JdbcStorage implements Storage {
             statement.setInt(1,procedure.getPetId());
             statement.setString(2,procedure.getName());
             statement.setDouble(3,procedure.getPrice());
-            statement.setDate(4, (java.sql.Date) procedure.getProcedureDate());
+            statement.setDate(4, new Date(procedure.getProcedureDate().getTime()));
             statement.setInt(5,procedure.getId());
             statement.executeUpdate();
 
@@ -399,15 +412,15 @@ public class JdbcStorage implements Storage {
                     Procedure proc=new Procedure(rs.getInt("uid"),
                             rs.getString("name"),
                             rs.getDouble("coast"),
-                            rs.getDate("date"),
-                            rs.getInt("pet_id"));
+                            new java.util.Date(rs.getDate("date").getTime()),
+                            getPet(rs.getInt("pet_id")));
                     return proc;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        throw new IllegalStateException(String.format("User %s does not exists", id));
+        throw new IllegalStateException(String.format("Procedure %s does not exists", id));
     }
 
     @Override
@@ -420,8 +433,8 @@ public class JdbcStorage implements Storage {
                     Procedure proc=new Procedure(rs.getInt("uid"),
                             rs.getString("name"),
                             rs.getDouble("coast"),
-                            rs.getDate("date"),
-                            rs.getInt("pet_id"));
+                            new java.util.Date(rs.getDate("date").getTime()),
+                            getPet(rs.getInt("pet_id")));
                     return proc;
                 }
             }
@@ -435,8 +448,10 @@ public class JdbcStorage implements Storage {
     //
     public int generateProcedureId() {
         try(Statement statement= connection.createStatement()){
-            ResultSet rs=statement.executeQuery("SELECT max(uid)+1 as id FROM procedure");
-            return rs.getInt("id");
+            ResultSet rs=statement.executeQuery("SELECT max(pcid)+1 as id FROM procedure");
+            while(rs.next()) {
+                return rs.getInt("id");
+            }
 
         }catch (SQLException e){
             e.printStackTrace();

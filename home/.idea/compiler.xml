@@ -16,7 +16,7 @@
       <module name="lessons" target="1.5" />
       <module name="lessons (1)" target="1.5" />
       <module name="se" target="1.5" />
-      <module name="vcw" target="1.7" />
+      <module name="vcw" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
